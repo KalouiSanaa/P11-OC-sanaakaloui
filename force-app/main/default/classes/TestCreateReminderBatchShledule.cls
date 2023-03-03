@@ -2,20 +2,22 @@
 public class TestCreateReminderBatchShledule {
     @isTest
     static void ReminderBatchShleduleTest(){
-          // Créer trois comptes 
-        List<Account> accounts = DataFactoyTest.createAccounts(3);
-Test.startTest();
+      // Créer trois comptes 
+ List<Account> accounts = TestDataFactory.createAccounts(1);
+List<Order> orders=TestDataFactory.createOrdersForAccounts(accounts,1,100,1);
+
+          Test.startTest();
+     // Schedule the batch job
+    CreateReminderBatchShledule reminderSchedule = new CreateReminderBatchShledule();
+       // Schedule the batch to run every Monday of the month at 10 PM
+
+    String cron =  '0 0 23 ? * MON';
+    System.schedule('Test Schedule', cron, reminderSchedule);
+    
+          Test.stopTest();
+   
+    List<Task> tasks = [SELECT Id, Subject FROM Task WHERE Subject = 'Call' AND Id =:accounts[0].Id];
+    System.assertEquals(1, tasks.size(), 'One Call task should have been created');
+} 
         
-        // Schedule the batch job
-        CreateReminderBatchShledule reminderSchedule = new CreateReminderBatchShledule();
-        String cron = '0 0 0 * * ?'; // Every day at midnight
-        System.schedule('Test Schedule', cron, reminderSchedule);
-        
-        Test.stopTest();
-        
-        // Verify that the batch job was scheduled
-        List<CronTrigger> cronTriggers = [SELECT Id FROM CronTrigger WHERE CronJobDetail.Name = 'Test Schedule'];
-        System.assertEquals(1, cronTriggers.size(), 'Batch job not scheduled');
-        
-            }
 }
