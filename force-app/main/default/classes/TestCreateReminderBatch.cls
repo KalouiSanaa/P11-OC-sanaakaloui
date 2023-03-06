@@ -1,7 +1,7 @@
 @isTest
 public  class TestCreateReminderBatch {
     // Nombre d'objets à créer pour les tests
-    private static Integer numOfAccounts = 2;
+    private static Integer numOfAccounts = 80;
     private static Integer numOfOrders = 1;
     private static Integer orderAmount = 150;
     
@@ -34,7 +34,7 @@ public  class TestCreateReminderBatch {
     @isTest
     static void TestCreateReminderBatchWithNoOrders() {
         // Insérer les données de test
-        List<Account> accounts = TestDataFactory.createAccounts(1);
+        List<Account> accounts = TestDataFactory.createAccounts(numOfAccounts);
         
         Test.startTest();
         // Exécuter le job batch
@@ -43,16 +43,13 @@ public  class TestCreateReminderBatch {
         
         // Vérifier qu'une tâche a été créée pour chaque compte sans commande
         List<Task> createdTasks = [SELECT Id, WhoId, WhatId FROM Task WHERE Subject = 'Call'];
-        Set<Id> expectedAccountIds = new Set<Id>();
-        for (Account a : accounts) {
+         Set<Id> expectedAccountIds = new Set<Id>();
+    for (Account a : accounts) {
+        if (a.Orders.size() == 0 && a.Tasks.size() == 0) {
             expectedAccountIds.add(a.Id);
         }
-        Integer numTasksCreated = 0;
-        for (Task t : createdTasks) {
-            if (expectedAccountIds.contains(t.WhatId)) {
-                numTasksCreated++;
-            }
-        }
-        System.assertEquals(numTasksCreated, expectedAccountIds.size(), 'One Call task should have been created for each account with no orders');
     }
-}
+    Integer expectedTaskCount = expectedAccountIds.size();
+    Integer actualTaskCount = createdTasks.size();
+    System.assertEquals(expectedTaskCount, actualTaskCount);
+    }}

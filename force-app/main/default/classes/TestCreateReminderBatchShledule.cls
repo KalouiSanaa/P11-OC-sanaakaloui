@@ -1,9 +1,9 @@
 @isTest
 public class TestCreateReminderBatchShledule {
-     @isTest
+    @isTest
     static void ReminderBatchShleduleTest(){
         // Créer un compte 
-        List<Account> accounts = TestDataFactory.createAccounts(1);
+        List<Account> accounts = TestDataFactory.createAccounts(80);
         List<Order> orders=TestDataFactory.createOrdersForAccounts(accounts,1,100,1);
         
         Test.startTest();
