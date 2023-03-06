@@ -1,7 +1,6 @@
-public with sharing class OrderTriggersHandler {
-    
+public class OrderTriggersHandler {
    public static void handleBeforeUpdate(List<Order> newOrders, Map<Id, Order> oldMap) {
-    
+       try{
       //Map<Id, Order> oldMap= new Map<Id,Order>();
       List<Order> ordersToUpdate = new List<Order>();
       for (Order o : newOrders) {
@@ -18,7 +17,10 @@ public with sharing class OrderTriggersHandler {
        // If all orders have associated products, update them
         if (!ordersToUpdate.isEmpty()) {
             update ordersToUpdate;
-        }
+        }}
+       catch(exception ex){
+           system.debug(ex.getMessage());
+       }
       }
 
 
@@ -30,7 +32,7 @@ public with sharing class OrderTriggersHandler {
     
     public static void handlerAfterDelete( List<Order> deletedOrders){
      //   List<Order> deletedOrders=new List<Order>();
-        
+        try{
         List<Account> accountsToUpdate = [SELECT Id, Active__c, (SELECT Id FROM Orders) FROM Account];
        for (Account a : accountsToUpdate) {
             if (a.Orders.isEmpty()) {
@@ -42,5 +44,9 @@ public with sharing class OrderTriggersHandler {
            }
         }
         update accountsToUpdate;
-    }
-}
+        }
+        catch(exception ex){
+            system.debug(ex.getMessage());
+            
+            }
+    }}

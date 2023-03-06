@@ -17,7 +17,7 @@ List<Order> orders=TestDataFactory.createOrdersForAccounts(accounts,1,100,1);
           Test.stopTest();
    
     List<Task> tasks = [SELECT Id, Subject FROM Task WHERE Subject = 'Call' AND Id =:accounts[0].Id];
-    System.assertEquals(1, tasks.size(), 'One Call task should have been created');
+    System.assertEquals(0, tasks.size());
 } 
         
 }

@@ -2,7 +2,7 @@
 
 public with sharing class TestOrderTriggersHandler {
    
-    @isTest
+   @isTest
     static void handlerAfterDeleteWithproductTest(){
         List<Account> acc= TestDataFactory.createAccounts(50);
         List<Order> orders=TestDataFactory.createOrdersForAccounts(acc,1,50,1);

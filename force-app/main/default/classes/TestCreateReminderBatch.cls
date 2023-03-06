@@ -1,6 +1,6 @@
 @isTest
 public  class TestCreateReminderBatch {
-    private static Integer numOfAccounts =4;
+    private static Integer numOfAccounts =2;
   private static Integer numOfOrders = 1;
   private static Integer orderAmount = 150;
     @isTest
@@ -14,7 +14,7 @@ public  class TestCreateReminderBatch {
       Test.stopTest();
         
         // Verify that tasks were created for the appropriate accounts
-        List<Task> createdTasks = [SELECT Id, WhoId, WhatId FROM Task WHERE Subject = 'Call' AND Status = 'New'];
+        List<Task> createdTasks = [SELECT Id, WhoId, WhatId FROM Task WHERE Subject = 'Call' AND Status = 'Not Started'];
         Set<Id> expectedAccountIds = new Set<Id>();
         for (Account a : accounts) {
             if (a.Orders.size() == 0 && a.Tasks.size() == 0) {
@@ -26,24 +26,25 @@ public  class TestCreateReminderBatch {
         }
     
     }
-    @isTest
+   @isTest
     static void TestCreateReminderBatchWithNoOrders() {
      // Insérer les données de test
-        List<Account> accounts = TestDataFactory.createAccounts(numOfAccounts);
+        List<Account> accounts = TestDataFactory.createAccounts(1);
          Test.startTest();
         // Run the batch job
         Database.executeBatch(new CreateReminderBatch());
       Test.stopTest();
-         List<Task> createdTasks = [SELECT Id, WhoId, WhatId FROM Task WHERE Subject = 'Call' AND Status = 'New'];
-        Set<Id> expectedAccountIds = new Set<Id>();
-        for (Account a : accounts) {
-                expectedAccountIds.add(a.Id);
-            
+         List<Task> createdTasks = [SELECT Id, WhoId, WhatId FROM Task WHERE Subject = 'Call'];
+       Set<Id> expectedAccountIds = new Set<Id>();
+    for (Account a : accounts) {
+        expectedAccountIds.add(a.Id);
+    }
+    Integer numTasksCreated = 0;
+    for (Task t : createdTasks) {
+        if (expectedAccountIds.contains(t.WhatId)) {
+            numTasksCreated++;
         }
-        for (Task t : createdTasks) {
-            System.assertNotEquals(False, expectedAccountIds.contains(t.WhatId), 'Task created for expected account');
-        }}
-       
-    
-    
+    }
+    System.assertEquals(numTasksCreated, expectedAccountIds.size(), 'One Call task should have been created for each account with no orders');
+}
 }

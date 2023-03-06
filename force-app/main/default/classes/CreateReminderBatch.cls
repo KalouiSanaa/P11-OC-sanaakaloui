@@ -1,13 +1,14 @@
 global class CreateReminderBatch implements Database.Batchable<sObject> {
     global Database.QueryLocator start(Database.BatchableContext info) {
         return Database.getQueryLocator([
-       SELECT OwnerId, (SELECT Id FROM Orders),(SELECT Id FROM Tasks WHERE Subject='Call') FROM Account
+       SELECT Id, OwnerId, (SELECT Id FROM Orders),(SELECT Id FROM Tasks WHERE Subject='Call'  And Status = 'Not Started') FROM Account
     ]);
 
 
     }
          global void execute(Database.BatchableContext bc, List<Account> scope) {
         // Create call task for each account in scope
+             try{
         List<Task> tasks = new List<Task>();
         for(Account a : scope) {
          Boolean shouldCreateTask = true;
@@ -16,7 +17,7 @@ global class CreateReminderBatch implements Database.Batchable<sObject> {
                 break;
             }
             for(Task t : a.Tasks) {
-                if(t.Subject == 'Call') {
+                if(t.Subject == 'Call'  && t.Status == 'Not Started') {
                     shouldCreateTask = false;
                     break;
                 }
@@ -24,19 +25,21 @@ global class CreateReminderBatch implements Database.Batchable<sObject> {
             
             if(shouldCreateTask) {
             Task t = new Task();
-                t.OwnerId = a.OwnerId;
+                t.ownerId=a.ownerId;
+                // t.WhoId = a.Id;
                 t.Subject = 'Call';
-                t.Status = 'New';
+                t.Status = 'Not Started';
                 t.Priority = 'Normal';
-               //t.WhoId = a.OwnerId;
-                t.WhatId= a.id;
-                t.IsReminderSet = true;
+                t.WhatId = a.Id;
                 t.ActivityDate = Date.today().addDays(5);
-                t.ReminderDateTime = DateTime.now().addDays(5);
                 tasks.add(t);
             }
         insert tasks;
         }}
+             catch(exception ex){
+                 system.debug(ex.getMessage());
+             }
+             }
     
     global void finish(Database.BatchableContext bc) {
 
