@@ -1,13 +1,17 @@
 global class CreateReminderBatchShledule implements Schedulable {
-        global void execute(SchedulableContext ctx) {
-            try{
-             CreateReminderBatch batchTasks =new CreateReminderBatch();
-             Database.executeBatch(batchTasks);
-            }
-            catch(exception ex){
-                System.debug(ex.getMessage());
-           
-      
-            } }
-
+    
+    // Cette méthode est appelée par le planificateur pour exécuter la tâche planifiée
+    global void execute(SchedulableContext ctx) {
+        try {
+            // Créez une instance de la classe CreateReminderBatch
+            CreateReminderBatch batchTasks = new CreateReminderBatch();
+            
+            // Exécutez la tâche en tant que batch
+            Database.executeBatch(batchTasks);
+        }
+        catch (Exception ex) {
+            // En cas d'erreur, afficher le message d'erreur dans la console de débogage
+            System.debug(ex.getMessage());
+        } 
+    }
 }
